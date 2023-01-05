@@ -56,6 +56,9 @@ public class Main extends Socket {
     public void loop() throws IOException {
         INSTANCE = this;
         while (true) {
+
+            // TODO: ping mysqlserver and when not reachable Throw error to stop program.
+
             input = new ArrayList<String>(readFromClient(in));
             if ("EOF".equals(input.get(0))) {
                 System.out.println(message);
