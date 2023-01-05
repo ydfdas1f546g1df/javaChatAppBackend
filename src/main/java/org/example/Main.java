@@ -12,6 +12,8 @@ import java.util.List;
 
 
 public class Main extends Socket {
+
+    // Variables
     private ServerSocket socket;
     private BufferedReader in;
     private PrintWriter out;
@@ -29,6 +31,11 @@ public class Main extends Socket {
     }
 
     private void start(int port) throws IOException {
+
+        /*
+        Declare Variables
+         */
+
         //httpRequest = new HttpRequest();
         socket = new ServerSocket(port);
         cSocket = socket.accept();
