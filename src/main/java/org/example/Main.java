@@ -21,6 +21,8 @@ public class Main extends Socket {
     private static Main INSTANCE;
     ArrayList<String> input;
     private Boolean auth;
+    private String dbHost;
+    private int dbPort;
     ArrayList<ArrayList<String>> message;
     // HttpRequest httpRequest;
 
@@ -30,12 +32,13 @@ public class Main extends Socket {
 
     }
 
-    private void start(int port) throws IOException {
+    private void start(int port) throws Exception {
 
         /*
         Declare Variables
          */
-
+        dbHost = "localhost";
+        dbPort = port;
         //httpRequest = new HttpRequest();
         socket = new ServerSocket(port);
         cSocket = socket.accept();
@@ -43,6 +46,15 @@ public class Main extends Socket {
         in = new BufferedReader(new InputStreamReader(cSocket.getInputStream()));
         auth = false;
         message = new ArrayList<ArrayList<String>>();
+        // TODO: ping mysqlserver and when not reachable Throw error to stop program.
+
+        if(ping(dbHost, dbPort)){
+            System.out.println("db is rechable");
+        }else {
+            Exception exception = new Exception("mySQL server is not rechable");
+            throw exception;
+        }
+
         loop();
     }
 
@@ -57,7 +69,7 @@ public class Main extends Socket {
         INSTANCE = this;
         while (true) {
 
-            // TODO: ping mysqlserver and when not reachable Throw error to stop program.
+
 
             input = new ArrayList<String>(readFromClient(in));
             if ("EOF".equals(input.get(0))) {
@@ -134,6 +146,22 @@ public class Main extends Socket {
     public static void main(String[] args) throws IOException {
         Main server = new Main();
         server.start(8888);
+    }
+
+    public boolean ping(String host, int port){
+
+        String timeStamp = "";
+        Socket socket = null;//from w ww.  j  a  v a 2s  . c  om
+        BufferedReader br = null;
+        try {
+            socket = new Socket(host, port);
+            br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            timeStamp = br.readLine();
+            socket.close();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 
