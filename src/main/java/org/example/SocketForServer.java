@@ -11,6 +11,9 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SocketForServer extends Thread {
+    /**
+     * Declare the Variables
+     */
     private java.net.Socket cSocket;
     private BufferedReader in;
     private PrintWriter out;

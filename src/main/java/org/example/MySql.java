@@ -1,5 +1,6 @@
 package org.example;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -205,7 +206,7 @@ public class MySql {
                 str += rs.getString(4);
                 str += ";";
             }
-            System.out.println(str);
+            //System.out.println(str);
             conn.close();
         } catch (SQLException e) {
             // handle the exception
@@ -216,11 +217,11 @@ public class MySql {
 
     //SQL
 
-    public void sqlCommand(String sql){
+    public void sqlCommand(String sql) {
         try {
             Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
             PreparedStatement pst = conn.prepareStatement(sql);
-            pst.execute();
+            System.out.println(pst.execute());
 
             conn.close();
         } catch (Exception e) {
@@ -247,19 +248,31 @@ public class MySql {
             }
         } catch (SQLException e) {
             // handle the exception
+
             System.err.println("error" + e);
+
         }
-        String[] s = str.split(":");
-        int size = s.length;
-        int[] arr = new int[size];
-        for (int i = 0; i < size; i++) {
-            arr[i] = Integer.parseInt(s[i]);
+        if (str == null) {
+            x = new ArrayList<>();
+            return x;
+        } else {
+            String[] s = str.split(":");
+            int size = s.length;
+            int[] arr = new int[size];
+            if (s.length <= 1) {
+                return x;
+            } else {
+                //System.out.println(s.length + " " + str);
+                for (int i = 0; i < size; i++) {
+                    arr[i] = Integer.parseInt(s[i]);
+                }
+                for (int j : arr) {
+                    x.add(j);
+                }
+                //System.out.println(x);
+                return x;
+            }
         }
-        for (int i = 0; i < arr.length; i++) {
-            x.add(arr[i]);
-        }
-        System.out.println(x);
-        return x;
     }
 
     public ArrayList<Integer> roomListOfUser(Integer id) {
@@ -280,43 +293,54 @@ public class MySql {
         } catch (SQLException e) {
             // handle the exception
             System.err.println("error" + e);
+
         }
         String[] s = str.split(":");
         int size = s.length;
         int[] arr = new int[size];
-        for (int i = 0; i < size; i++) {
-            arr[i] = Integer.parseInt(s[i]);
+        if (s.length <= 1) {
+            return x;
+        } else {
+            //System.out.println(s.length + " " + str);
+            for (int i = 0; i < size; i++) {
+                arr[i] = Integer.parseInt(s[i]);
+            }
+            for (int j : arr) {
+                x.add(j);
+            }
+            //System.out.println(x);
+            return x;
         }
-        for (int j : arr) {
-            x.add(j);
-        }
-        //System.out.println(x);
-        return x;
     }
 
-    public void addUserToGroup(String username, int RoomId){
+    public void addUserToGroup(String username, int RoomId) {
         ArrayList<Integer> groups;
         String s = "";
         groups = new ArrayList<>();
         groups = roomListOfUser(username);
 
+
         s += RoomId;
-
-        for (Integer group : groups) {
-            s += ":";
-            s += group;
+        if (!(groups.size() == 0)) {
+            for (Integer group : groups) {
+                s += ":";
+                s += group;
+            }
         }
-
-        String sql = "UPDATE user SET Rooms=\""+s+"\" WHERE username=\""+username+"\"";
-
-        System.out.println(s);
+        String sql = "UPDATE user SET Rooms=\"" + s + "\" WHERE username=\"" + username + "\";";
+        sqlCommand(sql);
+        //System.out.println(s);
     }
-    public void addUserToGroup(int id, int RoomId){
+
+    public void addUserToGroup(int id, int RoomId) {
         ArrayList<Integer> groups;
         String s = "";
         groups = new ArrayList<>();
         groups = roomListOfUser(id);
-
+        if (groups.contains(RoomId)) {
+            System.err.println("User is already in this Room");
+            return;
+        }
         s += RoomId;
 
         for (Integer group : groups) {
@@ -324,15 +348,81 @@ public class MySql {
             s += group;
         }
 
-        String sql = "UPDATE user SET Rooms=\""+s+"\" WHERE ID="+id;
+        String sql = "UPDATE user SET Rooms=\"" + s + "\" WHERE ID=" + id + ";";
         sqlCommand(sql);
-        System.out.println(s);
+        //System.out.println(s);
+    }
+
+    public void removeUserFromGroup(int id, int groupId) {
+        ArrayList<Integer> groups;
+        String s = "";
+        groups = roomListOfUser(id);
+
+        //System.out.println(groups + " " + groups.size());
+        if (groups.size() == 0) {
+            System.out.println("Update to Zero");
+            String sql = "UPDATE user SET Rooms=NULL WHERE ID=" + id;
+            System.out.println(sql);
+            sqlCommand(sql);
+        } else {
+            System.out.println(groups.get(0));
+            if (groups.contains(groupId)) {
+                groups.remove(Integer.valueOf(groupId));
+                if (groups.size() == 0) {
+                    String sql = "UPDATE user SET Rooms=NULL WHERE ID=" + id;
+                    sqlCommand(sql);
+                } else {
+                    s += groups.get(0);
+                    for (int i = 1; i <= groups.size() - 1; i++) {
+                        s += ":";
+                        s += groups.get(i);
+                    }
+                    System.out.println(s);
+                    String sql = "UPDATE user SET Rooms=\"" + s + "\" WHERE ID=" + id + ";";
+                    sqlCommand(sql);
+                }
+            } else {
+                System.err.println("User is not in Group: " + groupId);
+            }
+        }
+    }
+
+    public void removeUserFromGroup(String username, int groupId) {
+        ArrayList<Integer> groups;
+        String s = "";
+        groups = roomListOfUser(username);
+        //System.out.println(groups + " " + groups.size());
+        if (groups.size() == 0) {
+            String sql = "UPDATE user SET Rooms= NULL WHERE username=\"" + username + "\";";
+            sqlCommand(sql);
+        } else {
+            if (groups.contains(groupId)) {
+                groups.remove(Integer.valueOf(groupId));
+                if (groups.size() == 0) {
+                    String sql = "UPDATE user SET Rooms=NULL WHERE username=\"" + username + "\";";
+                    sqlCommand(sql);
+                } else {
+                    s += groups.get(0);
+                    for (int i = 1; i <= groups.size() - 1; i++) {
+                        s += ":";
+                        s += groups.get(i);
+                    }
+                    System.out.println(s);
+                    String sql = "UPDATE user SET Rooms=\"" + s + "\" WHERE username=\"" + username + "\";";
+                    sqlCommand(sql);
+                }
+            } else {
+                System.err.println("User is not in Group: " + groupId);
+            }
+        }
     }
 
 
     public static void main(String[] args) {
         MySql mySql = new MySql();
-        mySql.addUserToGroup(0, 0);
+        //mySql.addUserToGroup("x", 1);
+
+        mySql.removeUserFromGroup(0,1);
 
     }
 }
