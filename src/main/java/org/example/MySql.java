@@ -11,11 +11,9 @@ public class MySql {
     private final String dbPassword;
 
 
-    public static void main(String[] args) {
-        MySql mySql = new MySql();
-        System.out.println(mySql.userPasswdCheck("admin", "1234"));
-        mySql.newUser("x", "x");
-    }
+//    public static void main(String[] args) {
+//        MySql mySql = new MySql();
+//    }
 
     public MySql() {
         dbUsername = "admin";
@@ -29,6 +27,7 @@ public class MySql {
     }
 
     public boolean userPasswdCheck(String username, String password){
+        password = encrypting.encryptSHA512(password);
         sqlSelectAllPersons = "SELECT * FROM user";
         try (Connection conn = DriverManager.getConnection(connectionUrl, "admin", "1234");
              PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons);
@@ -52,7 +51,16 @@ public class MySql {
 
     }
 
+    public boolean checkUser(String username){
+        boolean hasUser = false;
+        // TODO: make this
+
+        return hasUser;
+    }
+
     public void newUser(String username, String password){
+        password = encrypting.encryptSHA512(password);
+
         try{
             Connection conn = DriverManager.getConnection(connectionUrl, "admin", "1234");
 
