@@ -15,16 +15,19 @@ public class ServerStart {
             serverSocket = new ServerSocket(PORT);
         } catch (IOException e) {
             e.printStackTrace();
-
         }
+
         while (true) {
+            //System.out.println("Debug");
             try {
                 socket = serverSocket.accept();
             } catch (IOException e) {
                 System.out.println("I/O error: " + e);
             }
+            //System.out.println("Debugg");
             // new thread for a client
-            new SocketForServer(socket, PORT).start();
+            new SocketForServer(socket).start();
+            //System.out.println("Debuggg");
         }
     }
 }
