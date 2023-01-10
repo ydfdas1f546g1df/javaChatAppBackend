@@ -1,12 +1,15 @@
 package org.example;
 
 
+import org.apache.logging.log4j.Level;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class encrypting {
     public static String encryptSHA512(String input) {
+        Main.logger.log(Level.DEBUG , "Encrypt something with SHA512");
         try {
 // getInstance() method is called with algorithm SHA-512
             MessageDigest md = MessageDigest.getInstance("SHA-512");
@@ -40,6 +43,7 @@ public class encrypting {
         try {
 // getInstance() method is called with algorithm SHA-512
             MessageDigest md = MessageDigest.getInstance("SHA-256");
+            Main.logger.log(Level.DEBUG , "Encrypt something with SHA256");
 
 // digest() method is called
 // to calculate message digest of the input string
