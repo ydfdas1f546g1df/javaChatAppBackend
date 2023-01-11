@@ -118,7 +118,7 @@ public class SocketForServer extends Thread {
                 //    httpRequest.HttpRequest(out, input);
                 //
                 //
-            } else if ("AUTH".equals(input.get(0))) {
+            } else if ("AUTH".equals(input.get(0)) && !auth) {
                 if (input.size() == 3) {
                     if (mySql.userPasswdCheck(input.get(1), input.get(2))) {
                         out.println("INFO Authenticated");
@@ -213,9 +213,22 @@ public class SocketForServer extends Thread {
                         out.println("ERROR: You must be logged in");
                     }
 
-                } else if (input.size() >= 4) {
+                } else if (input.size() > 4) {
                     out.println("To many arguments look at Help");
                 } else {
+                    if (input.size() == 2) {
+                        if (auth) {
+                            if ("ALL".equals(input.get(1))) {
+                                // TODO: alle gruppen in denen man ist bekommen  Format:   name:id;name:id;
+                            }
+                        }else{
+                            out.println("ERROR: You must be logged in");
+                        }
+                    }else if (input.size() == 3){
+                        if ("NAME".equals(input.get(1))){
+                            // TODO: wie switch name
+                        }
+                    }
                     out.println("Not enough arguments look at Help");
                 }
 
@@ -228,8 +241,10 @@ public class SocketForServer extends Thread {
                         "USER CREATE username password --> create new user\n" +
                         "USER DELETE username password --> Delete user\n" +
                         "GROUP ADDUSER username groupid --> add user to group xy \n"
-
+                        //TODO: fertigstellen der HELP
                 );
+            } else if ("GET".equals(input.get(0))) {
+                out.println("MSG;RECIEVE;12:0:0:dsfsf;");
             } else {
                 Main.logger.log(Level.INFO, "ERROR FALSE INPUT:" + input);
                 out.println("NO VALID COMMAND \"HELP\" for all Commands");
