@@ -48,6 +48,7 @@ public class SocketForServer extends Thread {
         /*
         STATUS CODES:
             0:  No ERRORS
+            103: db is not Reachable
          */
         Main.logger.log(Level.DEBUG, "Setting Variable");
         try {
@@ -67,6 +68,9 @@ public class SocketForServer extends Thread {
             //System.out.println("db is reachable");
             Main.logger.log(Level.INFO, "db is reachable with address and port: " + dbHost + ":" + dbPort);
         } else {
+            Main.logger.log(Level.ERROR, "db is Not reachable");
+            out.println("db is not reachable");
+            stopServer();
             return;
         }
         //httpRequest = new HttpRequest();
