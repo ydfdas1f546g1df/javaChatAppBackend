@@ -391,21 +391,26 @@ public class MySql {
             Main.logger.log(Level.WARN , e);
 
         }
-        String[] s = str.split(":");
-        int size = s.length;
-        int[] arr = new int[size];
-        if (s.length <= 1) {
-            return x;
-        } else {
-            //System.out.println(s.length + " " + str);
-            for (int i = 0; i < size; i++) {
-                arr[i] = Integer.parseInt(s[i]);
+        if (str != null) {
+            String[] s = str.split(":");
+            int size = s.length;
+            int[] arr = new int[size];
+            if (s.length <= 1) {
+                return x;
+            } else {
+                //System.out.println(s.length + " " + str);
+                for (int i = 0; i < size; i++) {
+                    arr[i] = Integer.parseInt(s[i]);
+                }
+                for (int j : arr) {
+                    x.add(j);
+                }
+                //System.out.println(x);
+                return x;
             }
-            for (int j : arr) {
-                x.add(j);
-            }
-            //System.out.println(x);
-            return x;
+        }else{
+            ArrayList<Integer> e = new ArrayList<>();
+            return e;
         }
     }
 
@@ -522,12 +527,57 @@ public class MySql {
         }
     }
 
+    public String groupSwitch(int id) {
+        Main.logger.log(Level.DEBUG , "mySql: ID to groupname");
+        String str;
+        String sql = "SELECT * FROM groups";
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                if (Objects.equals(rs.getInt("id"), id)) {
+                    str = rs.getString("name");
+                    conn.close();
+                    return str;
+                }
+            }
+            conn.close();
+        } catch (SQLException e) {
+            Main.logger.log(Level.WARN , e);
+            // handle the exception
+            System.err.println("error" + e);
+            return "No such group";
+        }
+        return "No such group";
+    }
+
+    public int groupSwitch(String groupname) {
+        Main.logger.log(Level.DEBUG , "mySql: groupname to ID");
+        int id;
+        String sql = "SELECT * FROM groups";
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                if (Objects.equals(rs.getString("username"), groupname)) {
+                    id = rs.getInt("id");
+                    conn.close();
+                    return id;
+                }
+            }
+            conn.close();
+        } catch (SQLException e) {
+            // handle the exception
+            System.err.println("error" + e);
+            Main.logger.log(Level.WARN , e);
+            return -1;
+        }
+        return -1;
+    }
+
 
     public static void main(String[] args) {
         MySql mySql = new MySql();
-        //mySql.addUserToGroup("x", 1);
 
-        mySql.newMsg(0, 0, "Test");
+        mySql.addUserToGroup("admin", 0);
 
     }
 }
