@@ -220,17 +220,18 @@ public class SocketForServer extends Thread {
                 } else if (input.size() > 4) {
                     out.println("To many arguments look at Help");
                 } else {
-                    if (input.size() == 2) {
+                    if (input.size() == 3) {
                         if (auth) {
                             if ("ALL".equals(input.get(1))) {
                                 // TODO: alle gruppen in denen man ist bekommen  Format:   name:id;name:id;
+                                out.println(formatter(mySql.roomListOfUser(input.get(2))));
+
                             }
                         }else{
                             out.println("ERROR: You must be logged in");
                         }
-                    }else if (input.size() == 3){
                         if ("NAME".equals(input.get(1))){
-                            // TODO: wie switch name
+                            mySql.groupSwitch(input.get(2));
                         }
                     }
                     out.println("Not enough arguments look at Help");
@@ -296,5 +297,21 @@ public class SocketForServer extends Thread {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public String formatter(ArrayList<Integer> x){
+        ArrayList<String> names;
+        names = new ArrayList<>();
+        String output = "";
+
+        for(int i = 0; i < x.size(); i++){
+            names.add(mySql.groupSwitch(x.get(i)));
+        }
+
+        for(int i = 0; i < x.size(); i++){
+            output += x.get(Integer.parseInt(i + ":"));
+            output += names.get(Integer.parseInt(i + ";"));
+        }
+        return output;
     }
 }
