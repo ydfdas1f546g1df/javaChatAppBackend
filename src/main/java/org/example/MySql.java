@@ -21,7 +21,7 @@ public class MySql {
 //    }
 
     public MySql() {
-        Main.logger.log(Level.DEBUG , "Initialize Mysql module");
+        Main.logger.log(Level.DEBUG, "Initialize Mysql module");
         PORT = 3306;
         dbUsername = "admin";
         dbPassword = "1234";
@@ -36,7 +36,7 @@ public class MySql {
 
     //overloading
     public String userSwitch(int id) {
-        Main.logger.log(Level.DEBUG , "mySql: ID to username");
+        Main.logger.log(Level.DEBUG, "mySql: ID to username");
         String str;
         String sql = "SELECT * FROM user";
         try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
@@ -50,7 +50,7 @@ public class MySql {
             }
             conn.close();
         } catch (SQLException e) {
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
             // handle the exception
             System.err.println("error" + e);
             return "No such user";
@@ -59,7 +59,7 @@ public class MySql {
     }
 
     public int userSwitch(String username) {
-        Main.logger.log(Level.DEBUG , "mySql: username to ID");
+        Main.logger.log(Level.DEBUG, "mySql: username to ID");
         int id;
         String sql = "SELECT * FROM user";
         try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
@@ -75,7 +75,7 @@ public class MySql {
         } catch (SQLException e) {
             // handle the exception
             System.err.println("error" + e);
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
             return -1;
         }
         return -1;
@@ -98,7 +98,7 @@ public class MySql {
         } catch (SQLException e) {
             // handle the exception
             System.err.println("error" + e);
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
             return false;
         }
 
@@ -121,7 +121,7 @@ public class MySql {
         } catch (SQLException e) {
             // handle the exception
             System.err.println("error" + e);
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
             return false;
         }
 
@@ -145,7 +145,7 @@ public class MySql {
         } catch (SQLException e) {
             // handle the exception
             System.err.println("error" + e);
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
             return false;
         }
     }
@@ -166,7 +166,7 @@ public class MySql {
             conn.close();
             return false;
         } catch (SQLException e) {
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
             // handle the exception
             System.err.println("error" + e);
             return false;
@@ -189,7 +189,7 @@ public class MySql {
             conn.close();
             return false;
         } catch (SQLException e) {
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
             // handle the exception
             System.err.println("error" + e);
             return false;
@@ -201,8 +201,32 @@ public class MySql {
         return checkAdmin(s);
     }
 
+    public String listUsers() {
+
+        Main.logger.log(Level.DEBUG, "Admin requests userList");
+        String rommlst;
+        String sqlx = "Select * from user";
+        rommlst = "";
+
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                rommlst += rs.getString("ID") + ":" + rs.getString("username") + ";";
+
+            }
+        } catch (SQLException e) {
+            // handle the exception
+            Main.logger.log(Level.WARN, e);
+            System.err.println("error" + e);
+
+        }
+
+
+        return rommlst;
+    }
+
     public void newUser(String username, String password) {
-        if (!checkUser(username)) {
+        if (!checkUser(username)&&!checkPUser(username)) {
             Main.logger.log(Level.INFO, "Create new User: " + username);
             password = encrypting.encryptSHA512(password);
             try {
@@ -232,7 +256,7 @@ public class MySql {
                 return;
             } catch (Exception e) {
                 System.err.println("ERROR: " + e);
-                Main.logger.log(Level.WARN , e);
+                Main.logger.log(Level.WARN, e);
             }
         }
         System.out.println("User " + username + " exists already");
@@ -251,7 +275,7 @@ public class MySql {
                 conn.close();
             } catch (Exception e) {
                 System.err.println("ERROR: " + e);
-                Main.logger.log(Level.WARN , e);
+                Main.logger.log(Level.WARN, e);
             }
         }
     }
@@ -259,7 +283,7 @@ public class MySql {
     // For Messages
 
     public void newMsg(int roomId, int userId, String msg) {
-        Main.logger.log(Level.DEBUG , "New Message From: " + userId);
+        Main.logger.log(Level.DEBUG, "New Message From: " + userId);
         try {
             Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
 
@@ -277,12 +301,12 @@ public class MySql {
 
             conn.close();
         } catch (Exception e) {
-            Main.logger.log(Level.DEBUG ,"ERROR: " + e);
+            Main.logger.log(Level.DEBUG, "ERROR: " + e);
         }
     }
 
     public String getAllFormChatroom(int chatroomId) {
-        Main.logger.log(Level.DEBUG , "Someone wants all Message from Room: " + chatroomId);
+        Main.logger.log(Level.DEBUG, "Someone wants all Message from Room: " + chatroomId);
         String str = "";
         sqlSelectAllPersons = "SELECT * FROM chatapp WHERE roomid = " + chatroomId + ";";
         try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
@@ -301,7 +325,7 @@ public class MySql {
             conn.close();
         } catch (SQLException e) {
             // handle the exception
-            Main.logger.log(Level.DEBUG ,"error" + e);
+            Main.logger.log(Level.DEBUG, "error" + e);
         }
         return str;
     }
@@ -309,7 +333,7 @@ public class MySql {
     //SQL
 
     public void sqlCommand(String sql) {
-        Main.logger.log(Level.INFO , "SQL Command: " + sql);
+        Main.logger.log(Level.INFO, "SQL Command: " + sql);
         try {
             Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
             PreparedStatement pst = conn.prepareStatement(sql);
@@ -318,14 +342,37 @@ public class MySql {
             conn.close();
         } catch (Exception e) {
             System.err.println("ERROR: " + e);
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
         }
     }
 
     // Room management
 
+    public String listRooms() {
+        Main.logger.log(Level.DEBUG, "Admin requests roomList");
+        String rommlst;
+        String sqlx = "Select * from groups";
+        rommlst = "";
+
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                rommlst += rs.getString(1) + ":" + rs.getString(2) + ";";
+
+            }
+        } catch (SQLException e) {
+            // handle the exception
+            Main.logger.log(Level.WARN, e);
+            System.err.println("error" + e);
+
+        }
+
+
+        return rommlst;
+    }
+
     public ArrayList<Integer> roomListOfUser(String username) {
-        Main.logger.log(Level.DEBUG , "Roomlist from " + username+ " is wanted.");
+        Main.logger.log(Level.DEBUG, "Roomlist from " + username + " is wanted.");
         sqlSelectAllPersons = "SELECT * FROM user";
         String str;
         str = "";
@@ -342,7 +389,7 @@ public class MySql {
             }
         } catch (SQLException e) {
             // handle the exception
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
             System.err.println("error" + e);
 
         }
@@ -370,7 +417,7 @@ public class MySql {
     }
 
     public ArrayList<Integer> roomListOfUser(Integer id) {
-        Main.logger.log(Level.DEBUG , "Roomlist from " + id + " is wanted.");
+        Main.logger.log(Level.DEBUG, "Roomlist from " + id + " is wanted.");
         sqlSelectAllPersons = "SELECT * FROM user";
         String str;
         str = "";
@@ -388,7 +435,7 @@ public class MySql {
         } catch (SQLException e) {
             // handle the exception
             System.err.println("error" + e);
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
 
         }
         if (str != null) {
@@ -408,14 +455,14 @@ public class MySql {
                 //System.out.println(x);
                 return x;
             }
-        }else{
+        } else {
             ArrayList<Integer> e = new ArrayList<>();
             return e;
         }
     }
 
     public void addUserToGroup(String username, int RoomId) {
-        Main.logger.log(Level.DEBUG , "Add user " + username+ " to Group "+ RoomId + ".");
+        Main.logger.log(Level.DEBUG, "Add user " + username + " to Group " + RoomId + ".");
         ArrayList<Integer> groups;
         String s = "";
         groups = new ArrayList<>();
@@ -435,7 +482,7 @@ public class MySql {
     }
 
     public void addUserToGroup(int id, int RoomId) {
-        Main.logger.log(Level.DEBUG , "Add user " + id+ " to Group "+ RoomId + ".");
+        Main.logger.log(Level.DEBUG, "Add user " + id + " to Group " + RoomId + ".");
         ArrayList<Integer> groups;
         String s = "";
         groups = new ArrayList<>();
@@ -457,7 +504,7 @@ public class MySql {
     }
 
     public void removeUserFromGroup(int id, int groupId) {
-        Main.logger.log(Level.DEBUG , "Remove user " + id+ " to Group "+ groupId + ".");
+        Main.logger.log(Level.DEBUG, "Remove user " + id + " to Group " + groupId + ".");
         String username = userSwitch(id);
         if (!checkUser(username)) {
             System.err.println("No such User: " + username);
@@ -493,7 +540,7 @@ public class MySql {
     }
 
     public void removeUserFromGroup(String username, int groupId) {
-        Main.logger.log(Level.DEBUG , "Remove user " + username+ " to Group "+ groupId + ".");
+        Main.logger.log(Level.DEBUG, "Remove user " + username + " to Group " + groupId + ".");
         if (!checkUser(username)) {
             System.err.println("No such User: " + username);
         } else {
@@ -528,7 +575,7 @@ public class MySql {
     }
 
     public String groupSwitch(int id) {
-        Main.logger.log(Level.DEBUG , "mySql: ID to groupname");
+        Main.logger.log(Level.DEBUG, "mySql: ID to groupname");
         String str;
         String sql = "SELECT * FROM groups";
         try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
@@ -542,7 +589,7 @@ public class MySql {
             }
             conn.close();
         } catch (SQLException e) {
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
             // handle the exception
             System.err.println("error" + e);
             return "No such group";
@@ -551,7 +598,7 @@ public class MySql {
     }
 
     public int groupSwitch(String groupname) {
-        Main.logger.log(Level.DEBUG , "mySql: groupname to ID");
+        Main.logger.log(Level.DEBUG, "mySql: groupname to ID");
         int id;
         String sql = "SELECT * FROM groups";
         try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
@@ -567,17 +614,172 @@ public class MySql {
         } catch (SQLException e) {
             // handle the exception
             System.err.println("error" + e);
-            Main.logger.log(Level.WARN , e);
+            Main.logger.log(Level.WARN, e);
             return -1;
         }
         return -1;
     }
 
+    // Pending Users
+
+    public boolean checkPUser(String username) {
+        Main.logger.log(Level.INFO, "Check if pUser in db " + username);
+        String sqlc = "SELECT * FROM `pendingusers`;";
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlc); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                if (Objects.equals(rs.getString("username"), username)) {
+                    conn.close();
+                    return true;
+                } else {
+                    continue;
+                }
+            }
+            conn.close();
+            return false;
+        } catch (SQLException e) {
+            Main.logger.log(Level.WARN, e);
+            // handle the exception
+            System.err.println("error" + e);
+            return false;
+        }
+    }
+
+    public void addPendingUser(String username) {
+        if (!checkUser(username)) {
+            if (!checkPUser(username)) {
+                Main.logger.log(Level.INFO, "Create new PendingUser: " + username);
+                try {
+                    Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                    String sql = "INSERT INTO `pendingusers` (`username`) VALUES (?)";
+                    PreparedStatement pst = conn.prepareStatement(sql);
+                    pst.setString(1, username);
+                    pst.execute();
+                    conn.close();
+                    return;
+                } catch (Exception e) {
+                    System.err.println("ERROR: " + e);
+                    Main.logger.log(Level.WARN, e);
+                }
+            }
+        }
+        System.out.println("User " + username + " exists already");
+    }
+
+    public String listPendingUser() {
+        Main.logger.log(Level.DEBUG, "Admin requests pUserList");
+        String rommlst;
+        String sqlx = "SELECT * FROM `pendingusers`;";
+        rommlst = "";
+
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                rommlst += rs.getString("username") + ";";
+
+            }
+        } catch (SQLException e) {
+            // handle the exception
+            Main.logger.log(Level.WARN, e);
+            System.err.println("error" + e);
+
+        }
+        return rommlst;
+    }
+
+    public void deletePendingUser(String username) {
+        if (checkPUser(username)) {
+            Main.logger.log(Level.INFO, "Delete pendingUser: " + username);
+            try {
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+
+                String sql = "DELETE FROM `pendingusers` WHERE username = \"" + username + "\";";
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.execute();
+
+                conn.close();
+            } catch (Exception e) {
+                System.err.println("ERROR: " + e);
+                Main.logger.log(Level.WARN, e);
+            }
+        }
+    }
+
+    public void convertPendingUser(String username, String pw){
+        deletePendingUser(username);
+        newUser(username, pw);
+    }
+
+    //Admin
+
+    public String listAdmin(){
+        Main.logger.log(Level.DEBUG, "User requests AdminList");
+        String rommlst;
+        String sqlx = "Select * from admin";
+        rommlst = "";
+
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                rommlst += rs.getString("username") + ";";
+
+            }
+        } catch (SQLException e) {
+            // handle the exception
+            Main.logger.log(Level.WARN, e);
+            System.err.println("error" + e);
+
+        }
+
+
+        return rommlst;
+    }
+
+    public void removeAdmin(String username){
+        if (checkAdmin(username)) {
+            Main.logger.log(Level.INFO, "Remove Admin: " + username);
+            try {
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+
+                String sql = "DELETE FROM `admins` WHERE username = \"" + username + "\";";
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.execute();
+
+                conn.close();
+            } catch (Exception e) {
+                System.err.println("ERROR: " + e);
+                Main.logger.log(Level.WARN, e);
+            }
+        }
+    }
+    public void addAdmin(String username){
+        if (!checkAdmin(username) && checkUser(username) && !checkPUser(username)) {
+                Main.logger.log(Level.INFO, "Add Admin: " + username);
+                try {
+                    Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                    String sql = "INSERT INTO `admins` (`username`) VALUES (?)";
+                    PreparedStatement pst = conn.prepareStatement(sql);
+                    pst.setString(1, username);
+                    pst.execute();
+                    conn.close();
+                    return;
+                } catch (Exception e) {
+                    System.err.println("ERROR: " + e);
+                    Main.logger.log(Level.WARN, e);
+                }
+        }
+        System.out.println("Admin " + username + " exists already");
+    }
+
+
 
     public static void main(String[] args) {
         MySql mySql = new MySql();
 
-        mySql.addUserToGroup("admin", 0);
+        mySql.deletePendingUser("xsy");
+
 
     }
+
+
 }
