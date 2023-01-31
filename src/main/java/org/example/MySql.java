@@ -2,18 +2,13 @@ package org.example;
 
 import org.apache.logging.log4j.Level;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class MySql {
     String sqlSelectAllPersons;
     String connectionUrlMessages;
-    private final String dbUsername;
-    private final String dbPassword;
-    private final int PORT;
 
 
 //    public static void main(String[] args) {
@@ -22,9 +17,7 @@ public class MySql {
 
     public MySql() {
         Main.logger.log(Level.DEBUG, "Initialize Mysql module");
-        PORT = 3306;
-        dbUsername = "admin";
-        dbPassword = "1234";
+        int PORT = 3306;
         connectionUrlMessages = connectDB("localhost", PORT, "messages");
     }
 
@@ -48,7 +41,6 @@ public class MySql {
                     return str;
                 }
             }
-            conn.close();
         } catch (SQLException e) {
             Main.logger.log(Level.WARN, e);
             // handle the exception
@@ -71,7 +63,6 @@ public class MySql {
                     return id;
                 }
             }
-            conn.close();
         } catch (SQLException e) {
             // handle the exception
             System.err.println("error" + e);
@@ -846,11 +837,29 @@ public class MySql {
                 Main.logger.log(Level.WARN, e);
             }
     }
+    public void changePW(String username, String password) {
+        password = encrypting.encryptSHA512(password);
+        Main.logger.log(Level.INFO, "Change login from: " + username);
+            try {
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+
+                String sql = "UPDATE user SET password = " + password + " WHERE username = '" +username+ "';";
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.execute();
+
+                conn.close();
+            } catch (Exception e) {
+                System.err.println("ERROR: " + e);
+                Main.logger.log(Level.WARN, e);
+            }
+
+    }
 
     public static void main(String[] args) {
         MySql mySql = new MySql();
 
         System.out.println(mySql.countUserLogins());
     }
+
 
 }

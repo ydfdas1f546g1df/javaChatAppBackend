@@ -15,16 +15,13 @@ public class SocketForServer extends Thread {
     /**
      * Declare the Variables
      */
-    private java.net.Socket cSocket;
+    private final java.net.Socket cSocket;
     private BufferedReader in;
     private PrintWriter out;
     ArrayList<String> input;
     private Boolean auth;
-    private ArrayList<Integer> chatroomsAcces;
     private int id;
     private String username;
-    private String dbHost;
-    private int dbPort;
     private MySql mySql;
     private static SocketForServer INSTANCE2;
 
@@ -61,8 +58,8 @@ public class SocketForServer extends Thread {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        dbHost = "localhost";
-        dbPort = 3306;
+        String dbHost = "localhost";
+        int dbPort = 3306;
         mySql = new MySql();
         if (ping(dbHost, dbPort)) {
             //System.out.println("db is reachable");
@@ -100,7 +97,6 @@ public class SocketForServer extends Thread {
             throw new RuntimeException(e);
         }
         Main.logger.log(Level.DEBUG, "Instance stopped");
-        return;
     }
 
     public void loopServer() throws IOException {
@@ -109,7 +105,7 @@ public class SocketForServer extends Thread {
         while (true) {
 
 
-            input = new ArrayList<String>(readFromClient(in));
+            input = new ArrayList<>(readFromClient(in));
             Main.logger.log(Level.TRACE, "New Command" + input);
             if ("EOF".equals(input.get(0))) {
                 this.cSocket.close();
@@ -182,11 +178,15 @@ public class SocketForServer extends Thread {
                                 Main.logger.log(Level.WARN, "User " + username + " Created new User: " + input.get(2));
                                 mySql.newUser(input.get(2), input.get(3));
                                 out.println(mySql.userSwitch(input.get(2)));
-                            }
+                            }else if ("CHP".equals(input.get(1))&& mySql.checkAdmin(username)) {
+                            mySql.changePW(input.get(2), input.get(2));
+                        }
                         } else if ("LIST".equals(input.get(1))) {
                             out.println(mySql.listUsers());
                         }else if ("DELETE".equals(input.get(1))&& mySql.checkAdmin(username)) {
                             mySql.deleteUser(input.get(2));
+                        }else if ("CHECK".equals(input.get(1))&& mySql.checkAdmin(username)) {
+                            out.println(mySql.checkUser(input.get(2)));
                         }
                         else {
                             out.println("ERROR");
@@ -224,15 +224,20 @@ public class SocketForServer extends Thread {
                 } else if (input.size() > 4) {
                     out.println("ERROR");
                 } else {
-                    if (input.size() == 2) {
+                    if (input.size() == 3) {
                         if (auth) {
                             if ("ALL".equals(input.get(1))) {
-                                out.println(formatter(mySql.roomListOfUser(username)));
+                                out.println(formatter(mySql.roomListOfUser(input.get(2))));
 
                             }
 
                             if ("NAME".equals(input.get(1))) {
-                                mySql.groupSwitch(input.get(2));
+                                try {
+                                    out.println(mySql.groupSwitch(Integer.parseInt(input.get(2))));
+                                }catch (Exception e){
+                                    out.println(mySql.groupSwitch(input.get(2)));
+                                    Main.logger.log(Level.INFO, e);
+                                }
                             }
 
                             if (mySql.checkAdmin(username) && "LIST".equals(input.get(1))) {
@@ -268,7 +273,20 @@ public class SocketForServer extends Thread {
                     out.println(mySql.countUserLogins());
                 }
 
-            } else if ("GET".equals(input.get(0))) {
+            }else if ("ADMIN".equals(input.get(0))) {
+                if (mySql.checkAdmin(id)){
+                    if ("CHECK".equals(input.get(1))){
+                        out.println(mySql.checkAdmin(input.get(3)));
+                    }else if ("ADD".equals(input.get(1))){
+                        mySql.addAdmin(input.get(3));
+                    }else if ("REMOVE".equals(input.get(1))){
+                        mySql.removeAdmin(input.get(3));
+                    }else if ("LIST".equals(input.get(1))){
+                        out.println(mySql.listAdmin());
+                    }
+                }
+            }
+            else if ("GET".equals(input.get(0))) {
                 out.println("MSG;RECIEVE;12:0:0:dsfsf;");
             } else {
                 Main.logger.log(Level.INFO, "ERROR FALSE INPUT:" + input);
@@ -287,7 +305,7 @@ public class SocketForServer extends Thread {
 
             List<String> halfProcessed = Arrays.asList(str);
 
-            processedInput = new ArrayList<String>(halfProcessed);
+            processedInput = new ArrayList<>(halfProcessed);
         } catch (Exception e) {
             out.println("ERROR " + e);
         }
@@ -295,7 +313,7 @@ public class SocketForServer extends Thread {
         return processedInput;
     }
 
-    public static void startAndStop() throws Exception {
+    public static void startAndStop() {
         Main.logger.log(Level.DEBUG, "Start and Stop instance");
         INSTANCE2.stopServer();
         INSTANCE2.startServer();
@@ -303,24 +321,24 @@ public class SocketForServer extends Thread {
     }
 
     public String mergeMsg(ArrayList<String> zz) {
-        String zzz;
-        zzz = "";
+        StringBuilder zzz;
+        zzz = new StringBuilder();
 
         for (int i = 4; i < zz.size(); i++) {
-            zzz += zz.get(i);
+            zzz.append(zz.get(i));
             if(i+1<zz.size()){
-                zzz += " ";
+                zzz.append(" ");
             }
         }
-        return zzz;
+        return zzz.toString();
     }
 
     public boolean ping(String host, int port) {
         Main.logger.log(Level.DEBUG, "Ping: " + host + " on Port: " + port);
 
-        String timeStamp = "";
-        Socket socket1 = null;
-        BufferedReader br1 = null;
+        String timeStamp;
+        Socket socket1;
+        BufferedReader br1;
         try {
             socket1 = new Socket(host, port);
             br1 = new BufferedReader(new InputStreamReader(socket1.getInputStream()));
@@ -335,16 +353,16 @@ public class SocketForServer extends Thread {
     public String formatter(ArrayList<Integer> x) {
         ArrayList<String> names;
         names = new ArrayList<>();
-        String output = "";
+        StringBuilder output = new StringBuilder();
 
-        for (int i = 0; i < x.size(); i++) {
-            names.add(mySql.groupSwitch(x.get(i)));
+        for (Integer integer : x) {
+            names.add(mySql.groupSwitch(integer));
         }
 
         for (int i = 0; i < x.size(); i++) {
-            output += x.get(Integer.parseInt(i + ":"));
-            output += names.get(Integer.parseInt(i + ";"));
+            output.append(x.get(Integer.parseInt(i + ":")));
+            output.append(names.get(Integer.parseInt(i + ";")));
         }
-        return output;
+        return output.toString();
     }
 }
