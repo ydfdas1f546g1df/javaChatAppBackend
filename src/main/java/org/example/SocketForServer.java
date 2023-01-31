@@ -183,9 +183,12 @@ public class SocketForServer extends Thread {
                                 mySql.newUser(input.get(2), input.get(3));
                                 out.println(mySql.userSwitch(input.get(2)));
                             }
-                        } else if (input.size() >= 2) {
+                        } else if ("LIST".equals(input.get(1))) {
                             out.println(mySql.listUsers());
-                        } else {
+                        }else if ("DELETE".equals(input.get(1))&& mySql.checkAdmin(username)) {
+                            mySql.deleteUser(input.get(2));
+                        }
+                        else {
                             out.println("ERROR");
                         }
                     } else {

@@ -262,8 +262,8 @@ public class MySql {
         System.out.println("User " + username + " exists already");
     }
 
-    public void deleteUser(String username, String password) {
-        if (userPasswdCheck(username, password)) {
+    public void deleteUser(String username) {
+        if (true) {
             Main.logger.log(Level.INFO, "Delete User: " + username);
             try {
                 Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
