@@ -226,7 +226,7 @@ public class MySql {
     }
 
     public void newUser(String username, String password) {
-        if (!checkUser(username)&&!checkPUser(username)) {
+        if (!checkUser(username) && !checkPUser(username)) {
             Main.logger.log(Level.INFO, "Create new User: " + username);
             password = encrypting.encryptSHA512(password);
             try {
@@ -705,14 +705,14 @@ public class MySql {
         }
     }
 
-    public void convertPendingUser(String username, String pw){
+    public void convertPendingUser(String username, String pw) {
         deletePendingUser(username);
         newUser(username, pw);
     }
 
     //Admin
 
-    public String listAdmin(){
+    public String listAdmin() {
         Main.logger.log(Level.DEBUG, "User requests AdminList");
         String rommlst;
         String sqlx = "Select * from admin";
@@ -735,7 +735,7 @@ public class MySql {
         return rommlst;
     }
 
-    public void removeAdmin(String username){
+    public void removeAdmin(String username) {
         if (checkAdmin(username)) {
             Main.logger.log(Level.INFO, "Remove Admin: " + username);
             try {
@@ -752,34 +752,105 @@ public class MySql {
             }
         }
     }
-    public void addAdmin(String username){
+
+    public void addAdmin(String username) {
         if (!checkAdmin(username) && checkUser(username) && !checkPUser(username)) {
-                Main.logger.log(Level.INFO, "Add Admin: " + username);
-                try {
-                    Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
-                    String sql = "INSERT INTO `admins` (`username`) VALUES (?)";
-                    PreparedStatement pst = conn.prepareStatement(sql);
-                    pst.setString(1, username);
-                    pst.execute();
-                    conn.close();
-                    return;
-                } catch (Exception e) {
-                    System.err.println("ERROR: " + e);
-                    Main.logger.log(Level.WARN, e);
-                }
+            Main.logger.log(Level.INFO, "Add Admin: " + username);
+            try {
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                String sql = "INSERT INTO `admins` (`username`) VALUES (?)";
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.setString(1, username);
+                pst.execute();
+                conn.close();
+                return;
+            } catch (Exception e) {
+                System.err.println("ERROR: " + e);
+                Main.logger.log(Level.WARN, e);
+            }
         }
         System.out.println("Admin " + username + " exists already");
     }
 
+    //statistics
 
+    public int userCount() {
+        String[] x = listUsers().split(";");
+        if(Objects.equals(x[0], "")){return 0;}
+        return x.length;
+    }
+    public int groupCount(){
+        String[] x = listRooms().split(";");
+        if(Objects.equals(x[0], "")){return 0;}
+        return x.length;
+    }
+
+    public int pendingCount(){
+        String[] x = listPendingUser().split(";");
+        if(Objects.equals(x[0], "")){return 0;}
+        return x.length;
+    }
+
+    public int messageCount(){
+        int x = 0;
+        Main.logger.log(Level.DEBUG, "Ounting Messages");
+        sqlSelectAllPersons = "SELECT * FROM chatapp;";
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                x += 1;
+            }
+            conn.close();
+        } catch (SQLException e) {
+            // handle the exception
+            Main.logger.log(Level.DEBUG, "error" + e);
+        }
+        return x;
+    }
+
+    public String countUserLogins(){
+        Main.logger.log(Level.DEBUG, "Admin requests userLoginOCunt");
+        String rommlst;
+        String sqlx = "Select * from user";
+        rommlst = "";
+
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                rommlst += rs.getString("username") + ":" + rs.getString("loginCount") + ";";
+
+            }
+        } catch (SQLException e) {
+            // handle the exception
+            Main.logger.log(Level.WARN, e);
+            System.err.println("error" + e);
+
+        }
+
+
+        return rommlst;
+    }
+
+    public void addUserLogin(String username){
+        Main.logger.log(Level.INFO, "Add login to: " + username);
+            try {
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+
+                String sql = "UPDATE user SET loginCount = loginCount+1 WHERE username = '" +username+ "';";
+                PreparedStatement pst = conn.prepareStatement(sql);
+                pst.execute();
+
+                conn.close();
+            } catch (Exception e) {
+                System.err.println("ERROR: " + e);
+                Main.logger.log(Level.WARN, e);
+            }
+    }
 
     public static void main(String[] args) {
         MySql mySql = new MySql();
 
-        mySql.deletePendingUser("xsy");
-
-
+        System.out.println(mySql.countUserLogins());
     }
-
 
 }

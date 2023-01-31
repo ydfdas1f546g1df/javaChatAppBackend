@@ -69,7 +69,7 @@ public class SocketForServer extends Thread {
             Main.logger.log(Level.INFO, "db is reachable with address and port: " + dbHost + ":" + dbPort);
         } else {
             Main.logger.log(Level.ERROR, "db is Not reachable");
-            out.println("ERROR db is not reachable");
+            out.println("ERROR");
             stopServer();
             return;
         }
@@ -130,6 +130,7 @@ public class SocketForServer extends Thread {
                         username = input.get(1);
                         id = mySql.userSwitch(username);
                         auth = true;
+                        mySql.addUserLogin(username);
                         Main.logger.log(Level.INFO, "Auth: " + username + " " + id);
 
                     } else {
@@ -148,7 +149,7 @@ public class SocketForServer extends Thread {
                             Main.logger.log(Level.DEBUG, "SEND MESSAGE");
                             if ("SEND".equals(input.get(1))) { // save to database
                                 //System.out.println("SEND-");
-                                mySql.newMsg(Integer.parseInt(input.get(2)), Integer.parseInt(input.get(3)), input.get(4));
+                                mySql.newMsg(Integer.parseInt(input.get(2)), id, mergeMsg(input));
 
 
                             }
@@ -158,11 +159,11 @@ public class SocketForServer extends Thread {
                             }
                         }
                     } else {
-                        out.println("ERROR Not enough arguments");
+                        out.println("ERROR");
                         Main.logger.log(Level.DEBUG, "False amount of arguments");
                     }
                 } else {
-                    out.println("ERROR Not Authenticated");
+                    out.println("ERROR");
                     Main.logger.log(Level.WARN, "Authentication error");
                 }
 
@@ -185,14 +186,14 @@ public class SocketForServer extends Thread {
                         } else if (input.size() >= 2) {
                             out.println(mySql.listUsers());
                         } else {
-                            out.println("ERROR Not enough arguments look at Help");
+                            out.println("ERROR");
                         }
                     } else {
-                        out.println("ERROR: You dont have enough rights and the incident will be reported");
+                        out.println("ERROR");
                         Main.logger.log(Level.ERROR, username + " tried to do something with higher rights.");
                     }
                 } else {
-                    out.println("ERROR: You must be logged in");
+                    out.println("ERROR");
                 }
 
 
@@ -207,67 +208,68 @@ public class SocketForServer extends Thread {
                                     System.err.println("ERROR: " + e);
                                 }
                             } else if ("DELUSER".equals(input.get(1))) {
-                                mySql.deleteUser(input.get(2), input.get(3));
+                                mySql.removeUserFromGroup(input.get(2), Integer.parseInt(input.get(3)));
                             }
                         } else {
-                            out.println("ERROR: You dont have enough rights and the incident will be reported");
+                            out.println("ERROR");
                             Main.logger.log(Level.ERROR, username + " tried to do something with higher rights.");
                         }
                     } else {
-                        out.println("ERROR: You must be logged in");
+                        out.println("ERROR");
                     }
 
                 } else if (input.size() > 4) {
-                    out.println("ERROR: To many arguments look at Help");
+                    out.println("ERROR");
                 } else {
-                    if (input.size() == 3) {
+                    if (input.size() == 2) {
                         if (auth) {
                             if ("ALL".equals(input.get(1))) {
-                                // TODO: alle gruppen in denen man ist bekommen  Format:   name:id;name:id;
-                                out.println(formatter(mySql.roomListOfUser(input.get(2))));
+                                out.println(formatter(mySql.roomListOfUser(username)));
 
                             }
+
+                            if ("NAME".equals(input.get(1))) {
+                                mySql.groupSwitch(input.get(2));
+                            }
+
+                            if (mySql.checkAdmin(username) && "LIST".equals(input.get(1))) {
+                                out.println(mySql.listRooms());
+                            }
                         } else {
-                            out.println("ERROR: You must be logged in");
-                        }
-                        if ("NAME".equals(input.get(1))) {
-                            mySql.groupSwitch(input.get(2));
-                        }
-                    } else if (input.size() == 2) {
-                        if (mySql.checkAdmin(username)) {
-                            out.println(mySql.listRooms());
+                            out.println("ERROR");
                         }
                     } else {
-                        out.println("Not enough arguments look at HELP");
+                        out.println("ERROR");
                     }
                 }
 
             } else if ("PENDING".equals(input.get(0))) {
                 if (input.get(1).equals("ADD")) {
                     mySql.addPendingUser(input.get(2));
-                }else if (input.get(1).equals("DELETE")) {
+                } else if (input.get(1).equals("DELETE")) {
                     mySql.deletePendingUser(input.get(2));
-                }else if (input.get(1).equals("LIST")) {
+                } else if (input.get(1).equals("LIST")) {
                     out.println(mySql.listPendingUser());
-                }else if (input.get(1).equals("LIST") && mySql.checkAdmin(username)) {
+                } else if (input.get(1).equals("CONVERT") && mySql.checkAdmin(username)) {
                     mySql.convertPendingUser(input.get(2), input.get(3));
                 }
-            } else if ("HELP".equals(input.get(0))) {
-                out.println("\n EOF --> disconnect \n" +
-                                "AUTH username password --> authenticate\n" +
-                                "DEAUTH --> authenticate\n" +
-                                "MSG SEND chatroomId username/userid message --> Send message\n" +
-                                "MSG ALL chatroomId --> show all messages from Chatroom\n" +
-                                "USER CREATE username password --> create new user\n" +
-                                "USER DELETE username password --> Delete user\n" +
-                                "GROUP ADDUSER username groupid --> add user to group xy \n"
-                        //TODO: fertigstellen der HELP
-                );
+
+            } else if ("STAT".equals(input.get(0))) {
+                if ("U".equals(input.get(1))){
+                    out.println(mySql.userCount());
+                }else if ("G".equals(input.get(1))){
+                    out.println(mySql.groupCount());
+                }else if ("M".equals(input.get(1))){
+                    out.println(mySql.messageCount());
+                }else if ("L".equals(input.get(1))){
+                    out.println(mySql.countUserLogins());
+                }
+
             } else if ("GET".equals(input.get(0))) {
                 out.println("MSG;RECIEVE;12:0:0:dsfsf;");
             } else {
                 Main.logger.log(Level.INFO, "ERROR FALSE INPUT:" + input);
-                out.println("NO VALID COMMAND \"HELP\" for all Commands");
+                out.println("ERROR");
             }
         }
 
@@ -297,11 +299,24 @@ public class SocketForServer extends Thread {
 
     }
 
+    public String mergeMsg(ArrayList<String> zz) {
+        String zzz;
+        zzz = "";
+
+        for (int i = 4; i < zz.size(); i++) {
+            zzz += zz.get(i);
+            if(i+1<zz.size()){
+                zzz += " ";
+            }
+        }
+        return zzz;
+    }
+
     public boolean ping(String host, int port) {
         Main.logger.log(Level.DEBUG, "Ping: " + host + " on Port: " + port);
 
         String timeStamp = "";
-        Socket socket1 = null;//from w ww.  j  a  v a 2s  . c  om
+        Socket socket1 = null;
         BufferedReader br1 = null;
         try {
             socket1 = new Socket(host, port);
