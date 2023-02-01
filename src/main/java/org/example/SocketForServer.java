@@ -287,7 +287,7 @@ public class SocketForServer extends Thread {
                 }
             }
             else if ("GET".equals(input.get(0))) {
-                out.println("MSG;RECIEVE;12:0:0:dsfsf;");
+                out.println("MSG;RECIEVE;12:0:0:ds fsf;");
             } else {
                 Main.logger.log(Level.INFO, "ERROR FALSE INPUT:" + input);
                 out.println("ERROR");

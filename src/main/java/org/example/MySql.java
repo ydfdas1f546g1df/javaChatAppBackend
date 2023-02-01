@@ -9,6 +9,8 @@ import java.util.Objects;
 public class MySql {
     String sqlSelectAllPersons;
     String connectionUrlMessages;
+    String dbUser;
+    String dbpasswd;
 
 
 //    public static void main(String[] args) {
@@ -18,6 +20,8 @@ public class MySql {
     public MySql() {
         Main.logger.log(Level.DEBUG, "Initialize Mysql module");
         int PORT = 3306;
+        dbUser = "admin";
+        dbpasswd = "1234";
         connectionUrlMessages = connectDB("localhost", PORT, "messages");
     }
 
@@ -32,7 +36,7 @@ public class MySql {
         Main.logger.log(Level.DEBUG, "mySql: ID to username");
         String str;
         String sql = "SELECT * FROM user";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getInt("id"), id)) {
@@ -54,7 +58,7 @@ public class MySql {
         Main.logger.log(Level.DEBUG, "mySql: username to ID");
         int id;
         String sql = "SELECT * FROM user";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getString("username"), username)) {
@@ -76,7 +80,7 @@ public class MySql {
         Main.logger.log(Level.INFO, "Check password from " + username);
         password = encrypting.encryptSHA512(password);
         sqlSelectAllPersons = "SELECT * FROM user";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getString("username"), username) && Objects.equals(rs.getString("password"), password)) {
@@ -99,7 +103,7 @@ public class MySql {
         Main.logger.log(Level.INFO, "Check password from " + id);
         password = encrypting.encryptSHA512(password);
         sqlSelectAllPersons = "SELECT * FROM user";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getInt("ID"), id) && Objects.equals(rs.getString("password"), password)) {
@@ -121,7 +125,7 @@ public class MySql {
     public boolean checkUser(String username) {
         Main.logger.log(Level.INFO, "Check if user in db " + username);
         sqlSelectAllPersons = "SELECT * FROM user";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getString("username"), username)) {
@@ -144,7 +148,7 @@ public class MySql {
     public boolean checkUser(int id) {
         Main.logger.log(Level.INFO, "Check if user in db " + id);
         sqlSelectAllPersons = "SELECT * FROM user";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getInt("ID"), id)) {
@@ -167,7 +171,7 @@ public class MySql {
     public boolean checkAdmin(String username) {
         Main.logger.log(Level.INFO, "Check if User " + username + " is Admin");
         sqlSelectAllPersons = "SELECT * FROM admins";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getString("username"), username)) {
@@ -199,7 +203,7 @@ public class MySql {
         String sqlx = "Select * from user";
         rommlst = "";
 
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 rommlst += rs.getString("ID") + ":" + rs.getString("username") + ";";
@@ -221,7 +225,7 @@ public class MySql {
             Main.logger.log(Level.INFO, "Create new User: " + username);
             password = encrypting.encryptSHA512(password);
             try {
-                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
 
                 PreparedStatement ps = conn.prepareStatement("SELECT * FROM user;");
                 ResultSet rs = ps.executeQuery();
@@ -257,7 +261,7 @@ public class MySql {
         if (true) {
             Main.logger.log(Level.INFO, "Delete User: " + username);
             try {
-                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
 
                 String sql = "DELETE FROM user WHERE username = \"" + username + "\";";
                 PreparedStatement pst = conn.prepareStatement(sql);
@@ -276,7 +280,7 @@ public class MySql {
     public void newMsg(int roomId, int userId, String msg) {
         Main.logger.log(Level.DEBUG, "New Message From: " + userId);
         try {
-            Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+            Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
 
             String sql = "insert into chatapp (timestamp, roomid, userid, message) values (?, ?, ?, ?)";
             PreparedStatement pst = conn.prepareStatement(sql);
@@ -300,7 +304,7 @@ public class MySql {
         Main.logger.log(Level.DEBUG, "Someone wants all Message from Room: " + chatroomId);
         String str = "";
         sqlSelectAllPersons = "SELECT * FROM chatapp WHERE roomid = " + chatroomId + ";";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 str += rs.getTimestamp(1).getTime();
@@ -326,7 +330,7 @@ public class MySql {
     public void sqlCommand(String sql) {
         Main.logger.log(Level.INFO, "SQL Command: " + sql);
         try {
-            Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+            Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
             PreparedStatement pst = conn.prepareStatement(sql);
             //System.out.println(pst.execute());
 
@@ -345,7 +349,7 @@ public class MySql {
         String sqlx = "Select * from groups";
         rommlst = "";
 
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 rommlst += rs.getString(1) + ":" + rs.getString(2) + ";";
@@ -369,7 +373,7 @@ public class MySql {
         str = "";
         ArrayList<Integer> x;
         x = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getString("username"), username)) {
@@ -414,7 +418,7 @@ public class MySql {
         str = "";
         ArrayList<Integer> x;
         x = new ArrayList<>();
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getInt("ID"), id)) {
@@ -569,7 +573,7 @@ public class MySql {
         Main.logger.log(Level.DEBUG, "mySql: ID to groupname");
         String str;
         String sql = "SELECT * FROM groups";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getInt("id"), id)) {
@@ -592,7 +596,7 @@ public class MySql {
         Main.logger.log(Level.DEBUG, "mySql: groupname to ID");
         int id;
         String sql = "SELECT * FROM groups";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getString("username"), groupname)) {
@@ -616,7 +620,7 @@ public class MySql {
     public boolean checkPUser(String username) {
         Main.logger.log(Level.INFO, "Check if pUser in db " + username);
         String sqlc = "SELECT * FROM `pendingusers`;";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlc); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlc); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 if (Objects.equals(rs.getString("username"), username)) {
@@ -641,7 +645,7 @@ public class MySql {
             if (!checkPUser(username)) {
                 Main.logger.log(Level.INFO, "Create new PendingUser: " + username);
                 try {
-                    Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                    Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
                     String sql = "INSERT INTO `pendingusers` (`username`) VALUES (?)";
                     PreparedStatement pst = conn.prepareStatement(sql);
                     pst.setString(1, username);
@@ -663,7 +667,7 @@ public class MySql {
         String sqlx = "SELECT * FROM `pendingusers`;";
         rommlst = "";
 
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 rommlst += rs.getString("username") + ";";
@@ -682,7 +686,7 @@ public class MySql {
         if (checkPUser(username)) {
             Main.logger.log(Level.INFO, "Delete pendingUser: " + username);
             try {
-                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
 
                 String sql = "DELETE FROM `pendingusers` WHERE username = \"" + username + "\";";
                 PreparedStatement pst = conn.prepareStatement(sql);
@@ -709,7 +713,7 @@ public class MySql {
         String sqlx = "Select * from admin";
         rommlst = "";
 
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 rommlst += rs.getString("username") + ";";
@@ -730,7 +734,7 @@ public class MySql {
         if (checkAdmin(username)) {
             Main.logger.log(Level.INFO, "Remove Admin: " + username);
             try {
-                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
 
                 String sql = "DELETE FROM `admins` WHERE username = \"" + username + "\";";
                 PreparedStatement pst = conn.prepareStatement(sql);
@@ -748,7 +752,7 @@ public class MySql {
         if (!checkAdmin(username) && checkUser(username) && !checkPUser(username)) {
             Main.logger.log(Level.INFO, "Add Admin: " + username);
             try {
-                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
                 String sql = "INSERT INTO `admins` (`username`) VALUES (?)";
                 PreparedStatement pst = conn.prepareStatement(sql);
                 pst.setString(1, username);
@@ -786,7 +790,7 @@ public class MySql {
         int x = 0;
         Main.logger.log(Level.DEBUG, "Ounting Messages");
         sqlSelectAllPersons = "SELECT * FROM chatapp;";
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 x += 1;
@@ -805,7 +809,7 @@ public class MySql {
         String sqlx = "Select * from user";
         rommlst = "";
 
-        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234"); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 rommlst += rs.getString("username") + ":" + rs.getString("loginCount") + ";";
@@ -825,7 +829,7 @@ public class MySql {
     public void addUserLogin(String username){
         Main.logger.log(Level.INFO, "Add login to: " + username);
             try {
-                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
 
                 String sql = "UPDATE user SET loginCount = loginCount+1 WHERE username = '" +username+ "';";
                 PreparedStatement pst = conn.prepareStatement(sql);
@@ -841,9 +845,9 @@ public class MySql {
         password = encrypting.encryptSHA512(password);
         Main.logger.log(Level.INFO, "Change login from: " + username);
             try {
-                Connection conn = DriverManager.getConnection(connectionUrlMessages, "admin", "1234");
+                Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
 
-                String sql = "UPDATE user SET password = " + password + " WHERE username = '" +username+ "';";
+                String sql = "UPDATE user SET password = " + password + " WHERE username = '" + username + "';";
                 PreparedStatement pst = conn.prepareStatement(sql);
                 pst.execute();
 
