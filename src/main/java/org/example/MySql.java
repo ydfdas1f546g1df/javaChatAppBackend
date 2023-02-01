@@ -199,14 +199,14 @@ public class MySql {
     public String listUsers() {
 
         Main.logger.log(Level.DEBUG, "Admin requests userList");
-        String rommlst;
+        StringBuilder rommlst;
         String sqlx = "Select * from user";
-        rommlst = "";
+        rommlst = new StringBuilder();
 
         try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                rommlst += rs.getString("ID") + ":" + rs.getString("username") + ";";
+                rommlst.append(rs.getString("ID")).append(":").append(rs.getString("username")).append(";");
 
             }
         } catch (SQLException e) {
@@ -217,7 +217,7 @@ public class MySql {
         }
 
 
-        return rommlst;
+        return rommlst.toString();
     }
 
     public void newUser(String username, String password) {
