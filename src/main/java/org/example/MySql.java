@@ -78,7 +78,7 @@ public class MySql {
 
     public boolean userPasswdCheck(String username, String password) {
         Main.logger.log(Level.INFO, "Check password from " + username);
-        password = encrypting.encryptSHA512(password);
+        password = Encrypting.encryptSHA512(password);
         sqlSelectAllPersons = "SELECT * FROM user";
         try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
@@ -101,7 +101,7 @@ public class MySql {
 
     public boolean userPasswdCheck(int id, String password) {
         Main.logger.log(Level.INFO, "Check password from " + id);
-        password = encrypting.encryptSHA512(password);
+        password = Encrypting.encryptSHA512(password);
         sqlSelectAllPersons = "SELECT * FROM user";
         try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlSelectAllPersons); ResultSet rs = ps.executeQuery()) {
 
@@ -223,7 +223,7 @@ public class MySql {
     public void newUser(String username, String password) {
         if (!checkUser(username) && !checkPUser(username)) {
             Main.logger.log(Level.INFO, "Create new User: " + username);
-            password = encrypting.encryptSHA512(password);
+            password = Encrypting.encryptSHA512(password);
             try {
                 Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
 
@@ -395,9 +395,7 @@ public class MySql {
             String[] s = str.split(":");
             int size = s.length;
             int[] arr = new int[size];
-            if (s.length <= 1) {
-                return x;
-            } else {
+            if (s.length > 1) {
                 //System.out.println(s.length + " " + str);
                 for (int i = 0; i < size; i++) {
                     arr[i] = Integer.parseInt(s[i]);
@@ -406,8 +404,8 @@ public class MySql {
                     x.add(j);
                 }
                 //System.out.println(x);
-                return x;
             }
+            return x;
         }
     }
 
@@ -842,7 +840,7 @@ public class MySql {
             }
     }
     public void changePW(String username, String password) {
-        password = encrypting.encryptSHA512(password);
+        password = Encrypting.encryptSHA512(password);
         Main.logger.log(Level.INFO, "Change login from: " + username);
             try {
                 Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
