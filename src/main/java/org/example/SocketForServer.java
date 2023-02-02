@@ -27,6 +27,7 @@ public class SocketForServer extends Thread {
 
 
     public SocketForServer(Socket clientSocket) {
+
         this.cSocket = clientSocket;
     }
 
