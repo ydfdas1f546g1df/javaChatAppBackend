@@ -277,11 +277,11 @@ public class SocketForServer extends Thread {
             }else if ("ADMIN".equals(input.get(0))) {
                 if (mySql.checkAdmin(id)){
                     if ("CHECK".equals(input.get(1))){
-                        out.println(mySql.checkAdmin(input.get(3)));
+                        out.println(mySql.checkAdmin(input.get(2)));
                     }else if ("ADD".equals(input.get(1))){
-                        mySql.addAdmin(input.get(3));
+                        mySql.addAdmin(input.get(2));
                     }else if ("REMOVE".equals(input.get(1))){
-                        mySql.removeAdmin(input.get(3));
+                        mySql.removeAdmin(input.get(2));
                     }else if ("LIST".equals(input.get(1))){
                         out.println(mySql.listAdmin());
                     }

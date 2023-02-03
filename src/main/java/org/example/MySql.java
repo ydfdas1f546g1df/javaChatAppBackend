@@ -206,7 +206,7 @@ public class MySql {
         try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                rommlst.append(rs.getString("ID")).append(":").append(rs.getString("username")).append(";");
+                rommlst.append(rs.getString("username")).append(";");
 
             }
         } catch (SQLException e) {
@@ -769,22 +769,29 @@ public class MySql {
 
     public int userCount() {
         String[] x = listUsers().split(";");
-        if(Objects.equals(x[0], "")){return 0;}
+        if (Objects.equals(x[0], "")) {
+            return 0;
+        }
         return x.length;
     }
-    public int groupCount(){
+
+    public int groupCount() {
         String[] x = listRooms().split(";");
-        if(Objects.equals(x[0], "")){return 0;}
+        if (Objects.equals(x[0], "")) {
+            return 0;
+        }
         return x.length;
     }
 
-    public int pendingCount(){
+    public int pendingCount() {
         String[] x = listPendingUser().split(";");
-        if(Objects.equals(x[0], "")){return 0;}
+        if (Objects.equals(x[0], "")) {
+            return 0;
+        }
         return x.length;
     }
 
-    public int messageCount(){
+    public int messageCount() {
         int x = 0;
         Main.logger.log(Level.DEBUG, "Ounting Messages");
         sqlSelectAllPersons = "SELECT * FROM chatapp;";
@@ -801,7 +808,7 @@ public class MySql {
         return x;
     }
 
-    public String countUserLogins(){
+    public String countUserLogins() {
         Main.logger.log(Level.DEBUG, "Admin requests userLoginOCunt");
         String rommlst;
         String sqlx = "Select * from user";
@@ -824,36 +831,37 @@ public class MySql {
         return rommlst;
     }
 
-    public void addUserLogin(String username){
+    public void addUserLogin(String username) {
         Main.logger.log(Level.INFO, "Add login to: " + username);
-            try {
-                Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
+        try {
+            Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
 
-                String sql = "UPDATE user SET loginCount = loginCount+1 WHERE username = '" +username+ "';";
-                PreparedStatement pst = conn.prepareStatement(sql);
-                pst.execute();
+            String sql = "UPDATE user SET loginCount = loginCount+1 WHERE username = '" + username + "';";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.execute();
 
-                conn.close();
-            } catch (Exception e) {
-                System.err.println("ERROR: " + e);
-                Main.logger.log(Level.WARN, e);
-            }
+            conn.close();
+        } catch (Exception e) {
+            System.err.println("ERROR: " + e);
+            Main.logger.log(Level.WARN, e);
+        }
     }
+
     public void changePW(String username, String password) {
         password = Encrypting.encryptSHA512(password);
         Main.logger.log(Level.INFO, "Change login from: " + username);
-            try {
-                Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
+        try {
+            Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd);
 
-                String sql = "UPDATE user SET password = " + password + " WHERE username = '" + username + "';";
-                PreparedStatement pst = conn.prepareStatement(sql);
-                pst.execute();
+            String sql = "UPDATE user SET password = " + password + " WHERE username = '" + username + "';";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.execute();
 
-                conn.close();
-            } catch (Exception e) {
-                System.err.println("ERROR: " + e);
-                Main.logger.log(Level.WARN, e);
-            }
+            conn.close();
+        } catch (Exception e) {
+            System.err.println("ERROR: " + e);
+            Main.logger.log(Level.WARN, e);
+        }
 
     }
 
