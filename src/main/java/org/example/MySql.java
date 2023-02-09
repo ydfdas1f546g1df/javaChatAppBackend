@@ -9,8 +9,8 @@ import java.util.Objects;
 public class MySql {
     String sqlSelectAllPersons;
     String connectionUrlMessages;
-    String dbUser;
-    String dbpasswd;
+    private String dbUser;
+    private String dbpasswd;
 
 
 //    public static void main(String[] args) {
