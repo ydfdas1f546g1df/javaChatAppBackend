@@ -708,7 +708,7 @@ public class MySql {
     public String listAdmin() {
         Main.logger.log(Level.DEBUG, "User requests AdminList");
         String rommlst;
-        String sqlx = "Select * from admin";
+        String sqlx = "Select * from admins";
         rommlst = "";
 
         try (Connection conn = DriverManager.getConnection(connectionUrlMessages, dbUser, dbpasswd); PreparedStatement ps = conn.prepareStatement(sqlx); ResultSet rs = ps.executeQuery()) {
