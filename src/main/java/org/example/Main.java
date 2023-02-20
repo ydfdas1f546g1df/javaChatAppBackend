@@ -13,6 +13,7 @@ public class Main extends Socket {
     public static final Logger logger = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) throws IOException {
+        System.out.println(args);
         ServerStart server = new ServerStart();
         logger.log(Level.INFO, "Starting Server");
         server.startServer();

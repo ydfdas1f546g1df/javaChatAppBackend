@@ -7,9 +7,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServerStart {
+
     final int PORT = 8888;
 
-    public void startServer() {
+    public void startServer(int PORT) {
         ServerSocket serverSocket = null;
         Socket socket = null;
 
@@ -39,5 +40,9 @@ public class ServerStart {
             Main.logger.log(Level.INFO, "Starting new server instance");
             //System.out.println("Debuggg");
         }
+    }
+
+    public void startServer() {
+        startServer(PORT);
     }
 }
